@@ -1,0 +1,423 @@
+;
+;不在檢物品指令範圍內會尋找怪物屍體走過去
+;
+;更新日期:2016.1.22
+
+;設定符文書ID
+	SET %book_1th UQDBKMD
+	SET %book_2th AILSKMD
+
+	
+;湖中女神
+	gosub tans_book1
+	
+	gosub click_point_1-1
+	
+		;
+		wait 40s
+		gosub move_to_corpse
+		
+
+;原住民 點1
+	gosub tans_book1
+	
+	gosub click_point_1-2
+	
+		;
+		wait 10s
+		gosub move_to_corpse
+		
+		
+;原住民 點2
+	gosub tans_book1
+	
+	gosub click_point_1-3
+	
+		;
+		wait 10s
+		gosub move_to_corpse
+		
+		
+;原住民 點3
+	gosub tans_book1
+	
+	gosub click_point_1-4
+	
+		;
+		wait 10s
+		gosub move_to_corpse
+		
+		
+;黑巫師
+
+	gosub tans_book1
+	
+	gosub click_point_1-5
+	
+		;
+		wait 10s
+		gosub move_to_corpse
+		
+		
+;原住民 點4
+	gosub tans_book1
+	
+	gosub click_point_1-6
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;骨龍 點1
+	gosub tans_book1
+	
+	gosub click_point_1-7
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;影龍 點1
+	gosub tans_book1
+	
+	gosub click_point_1-8
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;影龍 點2
+	gosub tans_book1
+	
+	gosub click_point_1-9
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+				
+;原住民 點5
+	gosub tans_book1
+	
+	gosub click_point_1-10
+	
+		;
+		wait 10s
+		gosub move_to_corpse
+		
+				
+;巫師
+	gosub tans_book1
+	
+	gosub click_point_1-11
+	
+		;
+		wait 10s
+		gosub move_to_corpse
+		
+		
+;骨龍 點2
+	gosub tans_book1
+	
+	gosub click_point_1-12
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;蜘蛛人
+
+	gosub tans_book1
+	
+	gosub click_point_1-13
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;龍
+
+	gosub tans_book1
+	
+	gosub click_point_1-14
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;章魚人 點1
+	gosub tans_book1
+	
+	gosub click_point_1-15
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+				
+;章魚人 點2
+	gosub tans_book1
+	
+	gosub click_point_1-16
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+			
+
+; book 2
+event sysmessage TansBook2...
+;
+
+;章魚人 點3
+
+	gosub tans_book2
+	
+	gosub click_point_2-1
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;章魚人 點4
+
+	gosub tans_book2
+	
+	gosub click_point_2-2
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;章魚人 點5
+
+	gosub tans_book2
+	
+	gosub click_point_2-3
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;章魚人 點6
+	gosub tans_book2
+	
+	gosub click_point_2-4
+	
+		;
+		wait 30s
+		gosub move_to_corpse
+		
+		
+;=========================
+sub tans_book1
+	initevents
+	ignoreitem reset
+	event sysmessage searching spellbook1th..
+	finditem %book_1th
+	if #FINDKIND = 0
+	{
+	set #LOBJECTID #FINDID
+	ignoreitem #FINDID
+	event macro 17 0
+	wait 1s
+	contpos 197 176
+	wait 1s
+	click 252 191 d
+	wait 1s
+	click 537 192
+	wait 1s
+	click 363 233
+	wait 1s
+	click 275 233 r
+	}
+	return
+
+sub tans_book2
+	initevents
+	ignoreitem reset
+	event sysmessage searching spellbook2th..
+	finditem %book_2th
+	if #FINDKIND = 0
+	{
+	set #LOBJECTID #FINDID
+	ignoreitem #FINDID
+	event macro 17 0
+	wait 1s
+	contpos 197 176
+	wait 1s
+	click 252 191 d
+	wait 1s
+	click 537 192
+	wait 1s
+	click 363 233
+	wait 1s
+	click 275 233 r
+	}	
+	return
+
+;=======================
+
+;
+sub move_to_corpse
+	set %m_type YFM  ;m_type物件類型    使用格式:怪物1_怪物2
+
+	finditem %m_type G_30       ;找屍體
+	if #finddist > 0
+	move #findx #findy 0 5s
+	return
+
+;======
+	
+sub click_point_1-1
+	click 339 371
+	wait 1s
+	click 338 356
+	wait 1s
+	return
+	
+sub click_point_1-2
+	click 339 371
+	wait 1s
+	click 496 356
+	wait 1s
+	return
+
+sub click_point_1-3
+	click 372 372
+	wait 1s
+	click 338 356
+	wait 1s
+	return
+
+sub click_point_1-4
+	click 339 371
+	wait 1s
+	click 496 356
+	wait 1s
+	return
+	
+sub click_point_1-5
+	click 406 371
+	wait 1s
+	click 337 356
+	wait 1s
+	return
+
+sub click_point_1-6
+	click 406 371
+	wait 1s
+	click 496 356
+	wait 1s
+	return
+
+sub click_point_1-7
+	click 443 374
+	wait 1s
+	click 337 357
+	wait 1s
+	return
+
+sub click_point_1-8
+	click 443 374
+	wait 1s
+	click 496 357
+	wait 1s
+	return
+
+sub click_point_1-9
+	click 505 370
+	wait 1s
+	click 337 356
+	wait 1s
+	return
+	
+sub click_point_1-10
+	click 505 370
+	wait 1s
+	click 496 357
+	wait 1s
+	return
+	
+sub click_point_1-11
+	click 545 375
+	wait 1s
+	click 337 356
+	wait 1s
+	return
+	
+sub click_point_1-12
+	click 545 369
+	wait 1s
+	click 496 357
+	wait 1s
+	return
+	
+sub click_point_1-13
+	click 577 372
+	wait 1s
+	click 337 356
+	wait 1s
+	return
+	
+sub click_point_1-14
+	click 577 372
+	wait 1s
+	click 496 357
+	wait 1s
+	return
+	
+sub click_point_1-15
+	click 612 374
+	wait 1s
+	click 337 356
+	wait 1s
+	return
+	
+sub click_point_1-16
+	click 612 374
+	wait 1s
+	click 496 357
+	wait 1s
+	return
+	
+sub click_point_2-1
+	click 339 371
+	wait 1s
+	click 338 356
+	wait 1s
+	return
+	
+sub click_point_2-2
+	click 339 371
+	wait 1s
+	click 496 356
+	wait 1s
+	return
+	
+sub click_point_2-3
+	click 372 372
+	wait 1s
+	click 338 356
+	wait 1s
+	return
+	
+sub click_point_2-4
+	click 339 371
+	wait 1s
+	click 496 356
+	wait 1s
+	return
+	
+	
+
+	
