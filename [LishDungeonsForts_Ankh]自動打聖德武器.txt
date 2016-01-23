@@ -1,0 +1,61 @@
+;
+;行進坐標設定區
+;2016/1/23
+  SET %point_1x 577
+  SET %point_1y 1144
+  SET %point_2x 582
+  SET %point_2y 1134
+  SET %point_3x 577
+  SET %point_3y 1133
+  SET %point_4x 577
+  SET %point_4y 1140
+  SET %point_5x 577
+  SET %point_5y 1134
+  SET %point_6x 583
+  SET %point_6y 1134
+  SET %point_7x 577
+  SET %point_7y 1143
+;
+move %point_1x %point_1y
+gosub process
+;
+move %point_2x %point_2y
+gosub process
+;
+move %point_3x %point_3y
+gosub process
+;
+move %point_4x %point_4y
+gosub process
+;
+move %point_5x %point_5y
+gosub process
+;
+move %point_6x %point_6y
+gosub process
+;
+move %point_7x %point_7y
+gosub process
+;
+
+sub Healing
+  msg [bs$
+	key ENTER
+	wait 2
+	return
+
+sub Getthing
+  msg [gr$
+	key ENTER
+	wait 2
+	return
+
+sub Waiting
+	wait 10s
+	return
+
+sub process
+	gosub Waiting
+	gosub Healing
+	gosub Getthing
+	return
