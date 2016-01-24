@@ -1,0 +1,682 @@
+initevents
+linesPerCycle 30
+gosub setMenu
+set %s_scnt #scnt
+set %h 0
+set %m 0
+set %s 0
+set #menubutton Switch1
+set %maxweight #maxweight - 20 ;重量限制設為最大重量-20
+set %cut_tools CNF_BNF_TSF_WSF_GMH ;各類型小刀
+set %fish FQD_GQD_EQD_DQD ;普通魚種
+set %shoes PVI_ZVI_NVI_TVI ;靴子
+set %o_Pos 1
+set %Pos 0
+set %end_Pos 0
+set %Fish_cd 0
+set %reset 0
+set %sleep1 0
+set %F_cd 0
+set %rune1 nothing
+set %rune2 nothing
+set %bag1 nothing
+set %sw_bank 1
+;切換介面變控制
+set %sw 1
+
+;==========================================
+MainLoop:
+menu get PutPos
+gosub Time
+;------------------------------------------
+if #menubutton = Switch1
+{
+ set %sw 1
+ set #menubutton nothing
+ gosub getSw
+}
+if #menubutton = Switch2
+{
+ set %sw 2
+ set #menubutton nothing
+ gosub getSw
+}
+if #menubutton = Switch3
+{
+ set %sw 3
+ set #menubutton nothing
+ gosub getSw
+}
+if #menubutton = Switch4
+{
+ set %sw 4
+ set #menubutton nothing
+ gosub getSw
+}
+if %rune1 = nothing || %rune2 = nothing
+ gosub setRune
+if %sw_bank <> 1 && %bag1 = nothing
+ gosub setBag
+;------------------------------------------
+if #menubutton = StartScript
+{
+ if %reset = 0
+ {
+  set %reset 1
+  set %Message 檢查中，請稍候...
+  menu set Message %Message
+  gosub check
+  wait 15
+  if %reset <> 0
+  {
+   set %Message 檢查完成，將開始執行腳本。
+   menu set Message %Message
+   wait 15
+  }
+ }
+ if %end_Pos <> 0
+  gosub Sleep1
+}
+if %sleep1 = 1
+{
+ menu List Select PutPos %o_Pos
+ gosub StartScript
+}
+set %F_cd %Fish_cd - #scnt
+if %F_cd < 0
+ set %F_cd 0
+menu Set S_time %F_cd
+;------------------------------------------
+if #menubutton = AddPos
+{
+ set %Pos %Pos + 1
+ set %Message 等待設定中...
+ menu set Message %Message
+ gosub setXYZTPos
+ set #menubutton nothing
+}
+;------------------------------------------
+if #menubutton = Save
+{
+ set %Message 儲存中，請稍候...
+ menu set Message %Message
+ gosub Save
+ set %Message 存檔完成。
+ menu set Message %Message
+ set #menubutton nothing
+ display 存檔完成。
+}
+;------------------------------------------
+if #menubutton = LoadPos
+{
+ gosub getXYZTPos
+ if %end_Pos <> N/A
+ {
+  set %Message 讀取完成。
+  menu set Message %Message
+  display 讀取完成。
+ }
+ else
+ {
+  set %Message 讀取失敗。
+  menu set Message %Message
+  display 讀取失敗。
+ }
+ set #menubutton nothing
+}
+;------------------------------------------
+if #menubutton = Clear1
+ gosub Clear1
+;------------------------------------------
+if #menubutton = Reset1
+ gosub Reset1
+;------------------------------------------
+if #menubutton = CLOSED
+ halt
+goto MainLoop
+
+;==========================================
+;------------------------------------------
+;更換介面
+sub getSw
+if %sw = 1
+ gosub page1
+if %sw = 2
+ gosub page2
+if %sw = 3
+ gosub page3
+if %sw = 4
+ gosub page4
+return
+
+sub page1
+menu clear
+menu Font Style b
+menu Font Align center
+menu Shape SwTs1 9 10 65 20 3 7 1 Black 7 BtnFace
+menu Text SwT1 15 12 %spage1
+menu Button Switch2 80 10 70 20 %spage2
+menu Button Switch3 155 10 70 20 %spage3
+menu Button Switch4 230 10 70 20 %spage4
+menu Button AddPos 10 35 50 20 New
+menu Button Save 70 35 50 20 Save
+menu Button LoadPos 130 35 50 20 Load
+menu Button StartScript 190 35 50 20 %Button_S
+menu Button Clear1 250 35 50 20 移除
+menu Button Reset1 250 61 50 20 清空
+
+menu Font Size 10
+menu Font Color yellow
+menu Font BGColor black
+menu Text sT_bank 250 87 回銀行
+menu Font Color black
+menu Font BGColor white
+menu Combo Create setBank 245 110 60
+menu Combo Add setBank %sT_bank1
+menu Combo Add setBank %sT_bank2
+menu Combo Add setBank %sT_bank3
+menu Combo Select setBank %sw_bank
+
+menu Font Align left
+menu Font BGColor white
+menu List Create PutPos 10 85 230 100
+menu Font BGColor BtnFace
+menu Shape EUOShape1 9 61 232 20 3 7 1 Black 7 BtnFace
+menu Text Message 15 62 %Message
+
+menu Font Align center
+menu Font Color red
+menu Font BGColor black
+menu Text M_time 250 180
+
+menu Font Color yellow
+menu Font Size 20
+menu Text S_time 265 145 %F_cd
+
+if %end_Pos > 0
+{
+ for %cnt 1 %end_Pos
+  menu List Add PutPos %cnt %CPos_X . %cnt %CPos_Y . %cnt %Pos_X . %cnt %Pos_Y . %cnt %Pos_Z . %cnt %Pos_Tile . %cnt %Pos_kind . %cnt
+}
+return
+
+sub page2
+menu clear
+menu Font Style b
+menu Font Align center
+menu Shape SwTs1 85 10 65 20 3 7 1 Black 7 BtnFace
+menu Text SwT1 94 12 %spage2
+menu Button Switch1 10 10 70 20 %spage1
+menu Button Switch3 155 10 70 20 %spage3
+menu Button Switch4 230 10 70 20 %spage4
+menu Font Size 50
+menu Text develoment 23 60 開發中...
+return
+
+sub page3
+menu clear
+menu Font Style b
+menu Font Align center
+menu Shape SwTs1 161 10 65 20 3 7 1 Black 7 BtnFace
+menu Text SwT1 170 12 %spage3
+menu Button Switch1 10 10 70 20 %spage1
+menu Button Switch2 86 10 70 20 %spage2
+menu Button Switch4 230 10 70 20 %spage4
+menu Font Size 50
+menu Text develoment 23 60 開發中...
+return
+
+sub page4
+menu clear
+menu Font Style b
+menu Font Align center
+menu Shape SwTs1 236 10 65 20 3 7 1 Black 7 BtnFace
+menu Text SwT1 245 12 %spage4
+menu Button Switch1 10 10 70 20 %spage1
+menu Button Switch2 86 10 70 20 %spage2
+menu Button Switch3 162 10 70 20 %spage3
+menu Font Size 50
+menu Text develoment 23 60 開發中...
+return
+;------------------------------------------
+;New
+sub setXYZTPos
+finditem KDF C_ , #backpackid
+if #findid = X
+{
+ display 請準備一支釣竿放身上。
+ set %Message 請準備一支釣竿放身上。
+ menu set Message %Message
+ return
+}
+set #lobjectid #findid
+event macro 17 0
+target 2s
+while #targcurs = 1 && #menubutton = AddPos
+ wait 15
+set %CPos_X . %Pos #charposX
+set %CPos_Y . %Pos #charposY
+set %Pos_X . %Pos #ltargetX
+set %Pos_Y . %Pos #ltargetY
+set %Pos_Z . %Pos #ltargetZ
+set %Pos_Tile . %Pos #ltargetTile
+set %Pos_kind . %Pos #ltargetkind
+
+if %end_Pos > %Pos
+{
+ gosub page1
+ menu List Select PutPos %Pos
+ set %Pos %end_Pos
+}
+else
+{
+ set %end_Pos %Pos
+ menu List Add PutPos %Pos #charposX #charposY #ltargetX #ltargetY #ltargetZ #ltargetTile #ltargetkind
+ menu List Select PutPos %Pos
+}
+
+set %Message 新增一個座標。
+menu set Message %Message
+return
+
+
+;Save
+sub Save
+set %cnt2 2
+if %end_Pos <= 0
+ return
+execute cmd.exe /c "echo set % , return %Pos >> setXYZTPos.txt"
+for %cnt 1 %end_Pos
+{
+ execute cmd.exe /c "echo set % , return , %cnt2 %cnt , _ , %CPos_X . %cnt
+  + , _ , %CPos_Y . %cnt , _ , %Pos_X . %cnt , _ , %Pos_Y . %cnt
+  + , _ , %Pos_Z . %cnt , _ , %Pos_Tile . %cnt , _ , %Pos_kind . %cnt , _ , >> setXYZTPos.txt"
+ set %cnt2 %cnt2 + 1
+}
+execute cmd.exe /c "echo set % , return , %cnt2 %sw_bank , _ , %rune1
+ + , _ , %rune2 , _ , %bag1 , _ ,  >> setXYZTPos.txt && echo exit >> setXYZTPos.txt"
+return
+
+
+;Load
+sub getXYZTPos
+gosub Reset1
+set %Message 讀取中，請稍候...
+menu set Message %Message
+gosub page1
+call setXYZTPos.txt
+set %num 2
+set %Len
+set %reg
+for %cnt 1 %return
+{
+ set %reg %return . %num
+ for %cnt2 1 9
+ {
+  str Pos %reg _
+  set %Len #strRes - 1
+  str Left %reg %Len
+  set %reg . %cnt2 #strRes
+  set %area %Len + 1
+  str Del %reg 1 %area
+  set %reg #strRes
+ }
+ if %reg1 <> N/A
+ {
+  set %CPos_X . %cnt %reg2
+  set %CPos_Y . %cnt %reg3
+  set %Pos_X . %cnt %reg4
+  set %Pos_Y . %cnt %reg5
+  set %Pos_Z . %cnt %reg6
+  set %Pos_Tile . %cnt %reg7
+  set %Pos_kind . %cnt %reg8
+  menu List Add PutPos %reg1 %reg2 %reg3 %reg4 %reg5 %reg6 %reg7 %reg8
+  set %num %num + 1
+ }
+}
+set %reg %return . %num
+for %cnt 1 4
+{
+ str Pos %reg _
+ set %Len #strRes - 1
+ str Left %reg %Len
+ set %reg . %cnt #strRes
+ set %area %Len + 1
+ str Del %reg 1 %area
+ set %reg #strRes
+}
+if %reg1 <> N/A
+{
+ set %sw_bank %reg1
+ set %rune1 %reg2
+ set %rune2 %reg3
+ set %bag1 %reg4
+ menu Combo Select setBank %sw_bank
+}
+set %end_Pos %return
+set %Pos %return
+return
+
+
+;Start
+sub StartScript
+if #weight > %maxweight
+ gosub solve_weight
+if #weight > %maxweight
+ gosub goBank
+if #weight >= #maxweight
+ halt
+
+finditem KDF C_ , #backpackid
+if #findid <> X
+ set #lobjectid #findid
+
+if #scnt > %Fish_cd
+{
+ move %CPos_X . %o_Pos %CPos_Y . %o_Pos 0 8s
+ set #ltargetx %Pos_X . %o_Pos
+ set #ltargety %Pos_Y . %o_Pos
+ set #ltargetz %Pos_Z . %o_Pos
+ set #ltargettile %Pos_Tile . %o_Pos
+ set #ltargetkind %Pos_kind . %o_Pos
+
+ event macro 17 0
+ target 2s
+ event macro 22 0
+
+ for %cnt 1 3
+ {
+  if #menubutton <> nothing
+   return
+  wait 5
+ }
+
+ if biting_here notin #sysmsg
+  set %Fish_cd #scnt + 8
+}
+if biting_here in #sysmsg
+ set %o_Pos %o_Pos + 1
+if %o_Pos > %end_Pos
+ set %o_Pos 1
+return
+
+
+;check
+sub check
+finditem %cut_tools C_ , #backpackid
+;wait 10
+if #findid = X
+{
+ display 請放兩把可切割魚肉的小刀在身上，再重新啟動腳本。
+ set #menubutton nothing
+ set %reset 0
+}
+finditem KDF C_ , #backpackid
+;wait 10
+if #findid = X
+{
+ display 請準備釣竿放在包包，再重新啟動腳本。
+ set #menubutton nothing
+ set %reset 0
+}
+if %end_Pos = 0
+{
+ display 請新增座標或者讀取座標。
+ set %Message 請新增座標或者讀取座標。
+ menu set Message %Message
+ set #menubutton nothing
+ set %reset 0
+}
+return
+
+
+;solve_weight
+sub solve_weight
+solve_w:
+finditem %cut_tools C_ , #backpackid
+;wait 10
+if #findid = X
+ goto solve_w
+set #lobjectid #findid
+
+repeat
+{
+ finditem %fish C_ , #backpackid
+ ;wait 10
+ set #ltargetid #findid
+ set #ltargetkind 1
+ if #findid <> X
+ {
+  event macro 17 0
+  target 2s
+  event macro 22 0
+  wait 15
+ }
+ if #findid = X
+ {
+  finditem JAG C_ , #backpackid
+  if #findid <> X
+  {
+   set #lobjectid #findid
+   finditem %shoes C_ , #backpackid
+   if #findid <> X
+   {
+    set #ltargetid #findid
+    set #ltargetkind 1
+    event macro 17 0
+    target 2s
+    event macro 22 0
+    wait 15
+   }
+  }
+ }
+}
+until #findid = X || #menubutton <> nothing
+return
+
+
+;Sleep 暫停
+sub Sleep1
+if %sleep1 = 0
+{
+ set %Button_S 暫停
+ menu set StartScript %Button_S
+ set %Message 腳本執行中...
+ menu set Message %Message
+ set %sleep1 1
+}
+else %sleep1 = 1
+{
+ set %Button_S 開始
+ menu set StartScript %Button_S
+ set %Message 暫停中...
+ menu set Message %Message
+  set %sleep1 0
+}
+set #menubutton nothing
+return
+
+;Clear
+sub Clear1
+menu get PutPos
+if #menuRes > 0
+{
+ set %CPos_X . #menuRes
+ set %CPos_Y . #menuRes
+ set %Pos_X . #menuRes
+ set %Pos_Y . #menuRes
+ set %Pos_Z . #menuRes
+ set %Pos_Tile . #menuRes
+ set %Pos_kind . #menuRes
+ set #menubutton nothing
+ set %Pos #menuRes - 1
+ if %end_Pos = #menuRes
+  set %end_Pos %Pos
+ if %Pos < 0
+  set %Pos 0
+ gosub page1
+ if %Pos > 0
+  menu List Select PutPos %Pos
+}
+return
+
+
+;Reset
+sub Reset1
+gosub setMenu
+set #menubutton Switch1
+set %o_Pos 1
+set %Pos 0
+set %end_Pos 0
+set %Fish_cd 0
+set %reset 0
+set %sleep1 0
+set %sw 1
+set %change 1
+return
+
+
+;set Rune
+sub setRune
+if %sw = 1
+{
+ menu get setBank
+ if #menuRes <> 1 && %rune1 = nothing
+ {
+  menu set Message 請選擇回銀行的浮石/書。
+  set #targcurs 1
+  target 1s
+  while #targcurs = 1
+   wait 15
+  if %rune1 = nothing
+   set %rune1 #ltargetid
+ }
+ if #menuRes <> 1 && %rune2 = nothing
+ {
+  menu set Message 請選擇回釣魚處的浮石/書。
+  set #targcurs 1
+  target 1s
+  while #targcurs = 1
+   wait 15
+  if %rune2 = nothing
+   set %rune2 #ltargetid
+  menu set Message 回程設定完畢。
+ }
+ set %sw_bank #menuRes
+ wait 10
+}
+return
+
+
+;goBank
+sub goBank
+if %sw_bank = 2
+ set %recall1 31
+if %sw_bank = 3
+ set %recall1 210
+ 
+set #ltargetid %rune1
+set #ltargetkind 1
+set %now_CPosX #charposx
+event macro 15 %recall1
+target 5s
+event macro 22 0
+while %now_CPosX = #charposx
+ wait 10
+ 
+gosub sayBank
+
+set #ltargetid %rune2
+set #ltargetkind 1
+set %now_CPosX #charposx
+event macro 15 %recall1
+target 5s
+event macro 22 0
+while %now_CPosX = #charposx
+ wait 10
+return
+
+
+;setBag
+sub setBag
+menu set Message 放魚皮的容器。
+set #targcurs 1
+target 1s
+while #targcurs = 1
+ wait 15
+if %bag1 = nothing
+ set %bag1 #ltargetid
+menu set Message 設定完畢。
+return
+
+
+;Put Obj to Bank
+sub sayBank
+msg bank $
+wait 1s
+repeat
+{
+ finditem IND_JJG_YDF
+ if #findid <> X
+ {
+  exevent drag #findid #findstack
+  wait 15
+  exevent dropc %bag1
+  wait 15
+ }
+}
+until #findid = X
+return
+
+;執行時間
+sub Time
+set %time #scnt - %s_scnt
+
+set %h %time / 3600
+
+set %m %time / 60
+set %ms %time / 60
+if %m >= 60
+ set %m  %m - ( %h * 60 )
+
+set %s %time
+if %s >= 60
+ set %s  %s - ( %ms * 60 )
+
+set %ss %s
+if %s / 10 < 1
+ set %ss 0 , %s
+set %mm %m
+if %mm / 10 < 1
+ set %mm 0 , %m
+set %hh %h
+if %hh / 10 < 1
+ set %hh 0 , %h
+
+menu set M_time %hh , : , %mm , : , %ss
+return
+
+
+;介面設定
+sub setMenu
+set %spage1 第一頁
+set %spage2 第二頁
+set %spage3 第三頁
+set %spage4 第四頁
+set %sT_bank1 無
+set %sT_bank2 魔法
+set %sT_bank3 騎士道
+set %Message 訊息欄......
+set %Button_S 開始
+menu Clear
+menu Window Color black
+menu Window Title 釣魚腳本 V1.3    By DRC
+menu Window Size 310 200
+menu Window Transparent
+menu Show
+;menu hideEUO
+return
+
+
+
+
