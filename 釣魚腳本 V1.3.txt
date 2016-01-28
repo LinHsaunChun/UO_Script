@@ -670,7 +670,7 @@ set %Message 訊息欄......
 set %Button_S 開始
 menu Clear
 menu Window Color black
-menu Window Title 釣魚腳本 V1.3
+menu Window Title 釣魚腳本 V1.3    By DRC
 menu Window Size 310 200
 menu Window Transparent
 menu Show
