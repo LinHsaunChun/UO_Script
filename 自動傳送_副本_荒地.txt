@@ -1,0 +1,241 @@
+;===湖中女神====
+;******open Tans book************
+initevents
+ignoreitem reset
+event sysmessage searching spellbook..
+finditem ZBN
+if #FINDKIND = 0
+{
+set #LOBJECTID #FINDID
+ignoreitem #FINDID
+event macro 17 0
+wait 1s
+contpos 197 176
+wait 1s
+click 252 191 d
+wait 1s
+click 537 192
+wait 1s
+click 363 233
+wait 1s
+click 275 233 r
+}
+;halt
+;*********click tans porint*****************
+click 339 371
+wait 1s
+click 338 356
+wait 1s
+;===================
+wait 180s
+;===原住民 點1====
+;******open Tans book************
+initevents
+ignoreitem reset
+event sysmessage searching spellbook..
+finditem ZBN
+if #FINDKIND = 0
+{
+set #LOBJECTID #FINDID
+ignoreitem #FINDID
+event macro 17 0
+wait 1s
+contpos 197 176
+wait 1s
+click 252 191 d
+wait 1s
+click 537 192
+wait 1s
+click 363 233
+wait 1s
+click 275 233 r
+}
+;halt
+;*********click tans porint*****************
+click 339 371
+wait 1s
+click 496 356
+wait 1s
+;===================
+wait 180s
+;===原住民 點2====
+;******open Tans book************
+initevents
+ignoreitem reset
+event sysmessage searching spellbook..
+finditem ZBN
+if #FINDKIND = 0
+{
+set #LOBJECTID #FINDID
+ignoreitem #FINDID
+event macro 17 0
+wait 1s
+contpos 197 176
+wait 1s
+click 252 191 d
+wait 1s
+click 537 192
+wait 1s
+click 363 233
+wait 1s
+click 275 233 r
+}
+;halt
+;*********click tans porint*****************
+click 372 372
+wait 1s
+click 338 356
+wait 1s
+;===================
+wait 180s
+;===原住民 點3====
+;******open Tans book************
+initevents
+ignoreitem reset
+event sysmessage searching spellbook..
+finditem ZBN
+if #FINDKIND = 0
+{
+set #LOBJECTID #FINDID
+ignoreitem #FINDID
+event macro 17 0
+wait 1s
+contpos 197 176
+wait 1s
+click 252 191 d
+wait 1s
+click 537 192
+wait 1s
+click 363 233
+wait 1s
+click 275 233 r
+}
+;halt
+;*********click tans porint*****************
+click 339 371
+wait 1s
+click 496 356
+wait 1s
+;===================
+wait 180s
+;===黑巫師====
+;******open Tans book************
+initevents
+ignoreitem reset
+event sysmessage searching spellbook..
+finditem ZBN
+if #FINDKIND = 0
+{
+set #LOBJECTID #FINDID
+ignoreitem #FINDID
+event macro 17 0
+wait 1s
+contpos 197 176
+wait 1s
+click 252 191 d
+wait 1s
+click 537 192
+wait 1s
+click 363 233
+wait 1s
+click 275 233 r
+}
+;halt
+;*********click tans porint*****************
+click 406 371
+wait 1s
+click 337 356
+wait 1s
+;===================
+wait 180s
+;===原住民 點4====
+;******open Tans book************
+initevents
+ignoreitem reset
+event sysmessage searching spellbook..
+finditem ZBN
+if #FINDKIND = 0
+{
+set #LOBJECTID #FINDID
+ignoreitem #FINDID
+event macro 17 0
+wait 1s
+contpos 197 176
+wait 1s
+click 252 191 d
+wait 1s
+click 537 192
+wait 1s
+click 363 233
+wait 1s
+click 275 233 r
+}
+;halt
+;*********click tans porint*****************
+click 406 371
+wait 1s
+click 496 356
+wait 1s
+;===================
+wait 180s
+;===骨龍 點1====
+;******open Tans book************
+initevents
+ignoreitem reset
+event sysmessage searching spellbook..
+finditem ZBN
+if #FINDKIND = 0
+{
+set #LOBJECTID #FINDID
+ignoreitem #FINDID
+event macro 17 0
+wait 1s
+contpos 197 176
+wait 1s
+click 252 191 d
+wait 1s
+click 537 192
+wait 1s
+click 363 233
+wait 1s
+click 275 233 r
+}
+;halt
+;*********click tans porint*****************
+click 443 374
+wait 1s
+click 337 357
+wait 1s
+;===================
+wait 180s
+;===影龍 點1====
+;******open Tans book************
+initevents
+ignoreitem reset
+event sysmessage searching spellbook..
+finditem ZBN
+if #FINDKIND = 0
+{
+set #LOBJECTID #FINDID
+ignoreitem #FINDID
+event macro 17 0
+wait 1s
+contpos 197 176
+wait 1s
+click 252 191 d
+wait 1s
+click 537 192
+wait 1s
+click 363 233
+wait 1s
+click 275 233 r
+}
+;halt
+;*********click tans porint*****************
+click 443 374
+wait 1s
+click 496 357
+wait 1s
+;===================
+wait 180s
+
