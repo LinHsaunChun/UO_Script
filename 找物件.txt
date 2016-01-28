@@ -1,0 +1,28 @@
+;========================================
+;執行出現游標點你要查的怪跟物品
+;左下會出現二行..第一行ID..第二行是物件編號
+;2016/1/23
+;========================================
+
+set #lTargetID X
+set #targCurs 1
+set #lTargetKind 1
+
+initevents
+msg /Please target the object$
+gosub selectItem
+gosub showItemType
+
+
+sub selectItem
+  waiting:
+  if #lTargetID = X
+  goto waiting
+	return
+	
+sub showItemType
+    msg /ID is: #lTargetID $
+    findItem #lTargetID
+    msg /Type is: #findType $
+    EVENT PROPERTY #lTargetID
+    return
