@@ -1,0 +1,10 @@
+set %m_id IGjF_ZOLF_DTXD_IS  ;m_id©Çª«ª«¥ó
+{
+	finditem %m_id G_30       ;§ä©Ç°lÀ»
+	if #finddist > 0
+	move #findx #findy 0 1s
+	set #ltargetid #findid
+	event macro 27 0
+	until #ENEMYID = N/A
+}
+
