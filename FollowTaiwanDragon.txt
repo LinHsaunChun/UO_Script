@@ -1,0 +1,25 @@
+	initevents
+	ignoreitem reset
+	gosub Loop
+
+;-------
+sub Loop
+     for %c 1 15
+     {
+       gosub FollowTaiwanDragon
+       
+return
+;-------
+sub FollowTaiwanDragon
+    set %m_id GJ
+		;TaiwanDragon Type is GT
+		;TaiwanDragon ID is PRAI_DNVD_OHWD_SDXD
+  	{
+  	finditem %m_id G_30       ;find monster
+  	if #finddist > 0
+  	move #findx #findy 0 1s
+  	}
+  	;wait 2sec
+	wait 1s
+return
+

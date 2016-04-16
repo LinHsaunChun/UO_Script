@@ -1,0 +1,1391 @@
+; ===================================================================== ;
+; Script Name: tEnado 戰鬥輔助
+; Author: tEnado ( D站主ID：ByeWind，網名：雨安 / 與風訣別 )
+; Version: 2.7
+; Revision Date: 2013.02.03
+; Public Release: 2010.10.24
+; Purpose: 方便玩家戰鬥和掠奪資源
+; Website: http://www.byewind.com/post/37398_4168df
+; 微博：http://weibo.com/1143758123/zhtmv6uKA
+; 正體中文版本由 GeniusKiKi 編譯
+; ===================================================================== ;
+;
+; ***特別注意***
+; 停止腳本請點擊面板上的關閉按鈕，這樣才能保存設定
+;
+; 腳本意見、bug提交及使用說明請訪問以下地址
+; http://www.byewind.com/post/37398_4168df
+;
+; 如何獲取獸醫ID？
+; 勾選獸醫功能後下馬就能獲取，但面板上不會馬上顯示，下次啟動腳本後會顯示
+;
+; ===================================================================== ;
+;
+; -設定自定義集種類-----------------------
+; 註：設定完後請在面板上勾選[自定義集]
+; 例：set %Customize CWL_LWL_UJG_IJG_
+set %Customize
+;
+; -設定拾取超時時間-----------------------
+; 注: 根據你的網速來設定，數字越大越不容易非法
+set %Ptime 8 ;(數字)
+;
+; -設定繃帶時間-----------------------
+; 註：一般來說你不需要修改，如果繃帶太快請加大數字，反之亦然
+; 例：set %Btime 5 或 set %Btime -5
+set %Btime 0 ;(數字，可為負數)
+;
+; -設定獸醫時間-----------------------
+; 註：一般來說你不需要修改，如果獸醫太快請加大數字，反之亦然
+set %Vtime 23 ;(數字)
+;
+; ===================================================================== ;
+; //////////////////////////////更新記錄/////////////////////////////// ;
+; ===================================================================== ;
+;
+; -13.02.03
+; -修改了註解，更新了網址，添加了微博地址，現在大家可以在腳本網站
+;  和微博上討論交流啦
+;
+; -12.20
+; -修改了自動攻擊最近目標不會攻擊已添加的朋友(繃帶朋友功能中的)
+; -順便提下，繃帶朋友功能可以繃帶人或者別人的寵物
+;
+; -12.18
+; -修改了剪皮革的bug
+;
+; -12.14
+; -修改了tWaitForAction副程式
+; -增加繃帶時間和獸醫時間設定
+; -修改了繃帶時間計算公式
+;
+; -12.6
+; -修改壓制功能
+;
+; -12.5
+; -修改繃帶朋友功能：只在能繃帶到的範圍內起作用
+;
+; -12.4
+; -增加在黑暗之父(DF)房間內剔骨(自動啟動，無需設定)
+; -增加判斷寵物血是否滿程序，需要在寵物滿血時手動拖出寵物血條來設定
+;  原理為捕捉屏幕上寵物血條位置的畫點顏色，所以設定好後寵物血條不能
+;  有位移，否則需要重新設定
+;
+; -11.9
+; -增加自動攻擊最近目標功能，角色在戰爭狀態時才有效，不會攻擊玩家
+;  此功能主要是方便玩家殺祭壇時候使用
+; -將拾取超時時間改為可自定義，玩家可以根據自己的網速來設定
+;
+; -11.7
+; -調整負重提醒
+; -優化拾取過程，盡量做到不非法
+; -物品增加 騎寵石、火號角、神器材料（腐敗、腐壞等）、各個地城任務物品
+; -功能增加 自動榮譽、自動失調、獸醫快捷鍵、自定義物品、自動首特攻
+;  自動自信、自動閃躲、繃帶朋友、顯示面板快捷鍵
+;
+; -11.6
+; -腳本更名為：tEnado 戰鬥輔助
+;
+; ===================================================================== ;
+; //////////////////////////////腳本開始/////////////////////////////// ;
+; ===================================================================== ;
+;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////www.byewind.com/////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+; ///////////////////////////////////////////////////////////////////// ;
+;
+initEvents
+linesPerCycle 100
+set %ScriptName 戰鬥輔助
+set %null
+set %abc the_quick_brown_fox_jumps_over_the_lazy_dog
+set %BandageTime 107 - ( #dex / 20 ) * 10 + %Btime
+set %bonetypes LNF_QNF_WNF_PNF_KNF_MNF_JNF_YNF_VNF
+set %knife CNF_BNF_HSF_INF_GMH_RRH_MTF_GUO_XRH_CUO_OPO_XTH_BUO_ZTO_WSF_HNF_RFR_IFR_WRH_
++UOH_LPH_RMH_ZRF_NSF_BSF_LSF_BPH_SOH_JTF_VRH_NMH_TSF_JPH_NPO_ATF_FUO
+set %scissors JAG
+set %player IS_HS_XU_AV_QAB
+set %mounted YVX_GVX_CVX_SVX_HVX_VUX_IVX_XVX_VVX_XUX_RRX_TUX_IWX_UUX_KWX_EVX_BWX
+set %mountkind FN_UJ_HH_ZGB_HHB_TJ_VF_YJ
+set %musictools QRF_NRF_MQF_PRF_LQF_OQF
+set %leather EEG_GED_DEG_
+set %cutresources JJG_EEG_GED_DEG_
+set %I1 POF_
+set %I2 ZLF_
+set %I3 CWL_LWL_UJG_IJG_
+set %I4 ZJF_LKF_CKF_YKK_OKF_TWN_CUD_BUD_IKF_IIF_HIF_
+set %I5 HVF_UVF_FVF_EVF_OVF_VUF_GVF_RVF_BVF_VVF_NVF_ZVF_
+set %I6 QEJ_
+set %I7 ZWF_
+set %I8 OFF_
+set %I9 VLK_
+set %I10 JJG_EEG_GED_DEG_
+set %I11 GUF_OZF_
+set %I12 VRD_
+set %I13 DPF_
+set %I14 NUF_XUF_UUF_OUF_ZUF_AVF_TUF_YUF_
+set %I15 RWF_LNK_FKF_
+set %I16 QWS_EWS_SWS_RWS_FWS_DWS_GWS_JWS_OWS_
+set %I17 MZF_JZF_RZF_KUF_SZF_JUF_KZF_WZF_
+set %I18 YZF_TZF_IUF_UZF_DUF_
+set %I19 OXM_TBN_SBN_UBN_BXM_DXM_OWS_
+set %I20 QCK_FIL_XVK_OWK_PWS_
+set %I21 WIS_BAB_MIG_LZF_ZFM_YWK_SWS_
+gosub Welcome
+gosub ShowMenu
+loop:
+  if ! %makeMenu
+    gosub makeMenu
+  if %menuKey
+  {
+    onhotkey *tCS_MenuKey . #charid
+    {
+      menu Show
+      set %makeMenu #false
+    }
+  }
+  if #charghost = no
+  {
+    gosub CutBone
+    finditem *tCS_ItemBag . #charid C_ , #backpackid
+    if #findkind = -1
+      set *tCS_ItemBag . #charid #backpackid
+    if %cutresources in %LootList
+    {
+      finditem %scissors C_ , #backpackid
+      if #findkind <> -1
+        set %scissorsID #findid
+      else
+        set %scissorsID N/A
+    }
+    if %setLoot
+    {
+      if H notin #charstatus
+      {
+        gosub OpenCorpse
+        gosub LootCorpse
+      }
+      gosub GroundItems
+    }
+    gosub LootContainer
+    if %LCKey
+    {
+      onhotkey *tCS_LCKey . #charid
+        gosub setContainer
+    }
+    if %MountKey
+    {
+      if %_MountKey = 1
+        set %Veterinary #false
+      if %_MountKey = 0
+        set %Veterinary #true
+      onhotkey *tCS_MountKey . #charid
+      {
+        if %Veterinary #true
+        {
+         set %Veterinary #false
+         event ExMsg *tCS_Mount . #charid 3 90 [Veterinary off!]
+         set %_MountKey 1
+        }
+        else
+        {
+         set %Veterinary #true
+         event ExMsg *tCS_Mount . #charid 3 90 [Veterinary on!]
+         set %_MountKey 0
+        }
+      }
+    }
+    if H notin #charstatus
+    {
+      if %AutoHeal
+        gosub AutoHeal
+      if %Veterinary
+        gosub Veterinary
+      if %HealFriend
+        gosub HealFriend
+      if %AutoAttack && G in #charstatus
+      {
+        event macro 52 5
+        finditem #ltargetid G_13
+        if #findkind <> -1 && #findtype notin %player && #ltargetid <> #charid && #ltargetid <> *tCS_Mount . #charid && #ltargetid <> YC && #ltargetid notin *tCS_fID
+          event macro 53
+      }
+      gosub Monster
+    }
+    if %FindPK
+      gosub FindPK
+  }
+  if #charghost = yes
+    ignoreitem reset LootItem
+goto loop
+sub Welcome
+  msg $
+  wait 3
+  msg [ tEnado %ScriptName ] $
+  wait 3
+  msg [ Powered By tEnado ] $
+  wait 3
+  msg [ www.byewind.com ] $
+  wait 3
+return
+sub GroundItems
+  if %GroundItems
+  {
+    namespace Push
+    namespace Local GroundItems
+    if #maxweight - #weight < 50
+    {
+      gosub tWaitForAction2 Weight 89
+      if #result
+        event ExMsg #charid 3 55 [Weight!]
+    }
+    finditem %LootList G_2
+    if #findkind <> -1
+    {
+      set !weight #weight
+      set !T #scnt2
+      Exevent Drag #findid #findstack
+      while #weight <= !weight
+      {
+        if #scnt2 - !T > %Ptime
+          break
+        wait 1
+      }
+      Exevent Dropc *tCS_ItemBag . #charid
+      wait 10
+    }
+    namespace Pop
+  }
+return
+sub LootCorpse
+  namespace Push
+  namespace Local LootCorpse
+  if #contsize = 144_212 && #contname = container_gump
+  {
+    set !contid #contid
+    if #maxweight - #weight < 50
+    {
+      gosub tWaitForAction2 Weight 89
+      if #result
+        event ExMsg #charid 3 55 [Weight!]
+    }
+    if %IgnorePlayers
+    {
+      event Property %CorpseID
+      str Left #property 1
+      if #strRes in %abc
+      {
+        ignoreitem %CorpseID Corpses
+        set %LootCorpse #false
+        namespace Pop
+        return
+      }
+    }
+    if %LootCorpse
+    {
+      if %cutresources in %LootList
+      {
+        finditem %leather C_ , !contid
+        if #findkind <> -1 && #findtype in %leather
+        {
+          if %scissorsID <> N/A
+          {
+            set #lobjectid %scissorsID
+            event macro 17 0
+            set #ltargetid #findid
+            set #ltargetkind 1
+            target
+            event macro 22 0
+            wait 1
+          }
+          else
+          {
+            event ExMsg #charid 3 55 [No scissors!]
+          }
+        }
+      }
+      finditem %LootList C_ , !contid
+      for !i 1 #findcnt
+      {
+        finditem %LootList C_ , !contid
+        if #findkind <> -1
+        {
+          set !weight #weight
+          set !T #scnt2
+          Exevent Drag #findid #findstack
+          while #weight <= !weight
+          {
+            if #scnt2 - !T > %Ptime
+              break
+            wait 1
+          }
+          Exevent Dropc *tCS_ItemBag . #charid
+          wait 10
+        }
+        else
+        {
+          if %CloseCorpse && #contname = container_gump && #contsize = 144_212 3
+            set !cx #contposx + 80
+            set !cy #contposy + 80
+            click !cx !cy r
+          if %HideCorpses
+            hideitem %CorpseID
+        }
+      }
+    }
+  }
+  namespace Pop
+return
+sub LootContainer
+  if %lootContainer
+  {
+    namespace Push
+    namespace Local LootContainer
+    finditem %lootContainerID
+    if #findkind = 1 && #finddist > 2 2
+      set %lootContainer #false
+      event ExMsg #charid 3 55 [too far!]
+    if #contid <> %lootContainerID
+    {
+      set #lobjectid %lootContainerID
+      event macro 17 0
+      set !T #scnt2
+      while #scnt2 - !T < 8
+      {
+       if #contid = %lootContainerID
+          break
+      }
+    }
+    else
+    {
+      if #maxweight - #weight < 50
+      {
+        gosub tWaitForAction2 Weight 89
+        if #result
+          event ExMsg #charid 3 55 [Weight!]
+      }
+      finditem %LootList C_ , %lootContainerID
+      for !i 1 #findcnt
+      {
+        finditem %LootList C_ , %lootContainerID
+        if #findkind <> -1
+        {
+          set !weight #weight
+          set !T #scnt2
+          Exevent Drag #findid #findstack
+          while #weight <= !weight
+          {
+            if #scnt2 - !T > %Ptime
+              break
+            wait 1
+          }
+          Exevent Dropc *tCS_ItemBag . #charid
+          wait 10
+        }
+        else
+        {
+          set %lootContainer #false
+          if %CloseCorpse && #contid = %lootContainerID 3
+            set !cx #contposx + 80
+            set !cy #contposy + 80
+            click !cx !cy r
+        }
+      }
+    }
+    namespace Pop
+  }
+return
+sub OpenCorpse
+  namespace Push
+  namespace Local OpenCorpse
+  finditem YFM G_2
+  if #findkind <> -1
+  {
+    set %LootCorpse #true
+    set %CorpseID #findid
+    set #lobjectid #findid
+    if %OpenCorpse
+    {
+      event macro 17 0
+      set !T #scnt2
+      while #scnt2 - !T < 8
+      {
+       if #contsize = 144_212 && #contname = container_gump
+          break
+      }
+    }
+    ignoreitem %CorpseID Corpses
+    if %CutCorpses && %CorpseID <> !prevCorpseID
+    {
+      finditem %knife C
+      if #findkind <> -1
+      {
+        set #lobjectid #findid
+        event macro 17 0
+        set #ltargetid %CorpseID
+        set #ltargetkind 1
+        target
+        event macro 22 0
+        set !prevCorpseID %CorpseID
+      }
+      else
+      {
+        event ExMsg #charid 3 55 [No knife!]
+      }
+    }
+  }
+  namespace Pop
+return
+sub AutoHeal
+  if #hits < #maxhits && #targcurs = 0
+  {
+    gosub tWaitForAction AutoHeal 3 %BandageTime 0 0 1
+    if #result
+    {
+      finditem ZLF c_ , #backpackid
+      set #lobjectid #findid
+      event macro 17 0
+      target
+      event macro 23 0
+    }
+  }
+return
+sub FindPK
+  finditem %player G
+  for %i 1 #findcnt
+  {
+    finditem %player G
+    if #findkind <> -1 && #findid <> #charid && #findrep = 6
+    {
+      gosub tWaitForAction2 FindPK 89
+      if #result
+        event ExMsg #charid 3 38 [PK!]
+      ignoreitem reset pk
+      return
+    }
+    else
+    {
+      ignoreitem #findid pk
+    }
+  }
+  ignoreitem reset pk
+return
+sub Veterinary
+  namespace Push
+  namespace Local Veterinary
+  set !lpc #lpc
+  set #lpc 1000
+  finditem %mounted C_ , #charid
+  if #findkind = -1 && #targcurs = 0
+  {
+    str Left *tCS_Mount . #charid 1
+    if *tCS_Mount . #charid = N/A || *tCS_Mount . #charid = %null || #strRes notin %abc
+    {
+     finditem %mountkind G_5
+     if #findkind <> -1
+       set *tCS_Mount . #charid #findid
+    }
+    if %setVeterinary
+    {
+      cmpPix 4 f
+      {
+        findItem *tCS_Mount . #charid G
+          if #finddist > 2
+            event ExMsg #charid 3 55 [too far!]
+        gosub tWaitForAction Veterinary 4 %Vtime 0 0 1
+        if #result
+        {
+          finditem ZLF C_ , #backpackid
+          set #lobjectid #findid
+          event macro 17 0
+          set !prevLtargetid #ltargetid
+          set #ltargetid *tCS_Mount . #charid
+          set #ltargetkind 1
+          target
+          event macro 22 0
+          set #ltargetid !prevLtargetid
+        }
+      }
+    }
+    else
+    {
+      findItem *tCS_Mount . #charid G
+        if #finddist > 2
+          event ExMsg #charid 3 55 [too far!]
+      gosub tWaitForAction Veterinary 4 %Vtime 0 0 1
+      if #result
+      {
+        finditem ZLF C_ , #backpackid
+        set #lobjectid #findid
+        event macro 17 0
+        set !prevLtargetid #ltargetid
+        set #ltargetid *tCS_Mount . #charid
+        set #ltargetkind 1
+        target
+        event macro 22 0
+        set #ltargetid !prevLtargetid
+      }
+    }
+  }
+  set #lpc !lpc
+  namespace Pop
+return
+sub Monster
+  namespace Push
+  namespace Local Monster
+  finditem #enemyid G
+  if #findkind <> -1 && #finddist < 13
+  {
+    set #ltargetid #enemyid
+    set #ltargetkind 1
+    if ! %AutoAttack && #finddist < 6 && G in #charstatus
+      event macro 27 0
+    if #enemyid <> !prevEnemy && #findtype notin %player
+    {
+      if %Honor
+      {
+        event macro 49 1
+        target
+        event macro 22 0
+      }
+      if %Discordance
+      {
+        finditem %musictools C_ , #backpackid
+        set #lobjectid #findid
+        event macro 17 0
+        gosub tWaitForAction Discordance 2 11 0 11 1
+        if #result
+        {
+          event macro 13 15
+          target
+          event macro 22 0
+        }
+      }
+      set !prevEnemy #enemyid
+    }
+    if #enemyid <> N/A
+    {
+      if %Confidence && #hits > 30 && #mana > 24
+      {
+        cmpPix 2 f
+        {
+          gosub tWaitForAction Confidence 1 0 7 4 1
+          if #result
+            event macro 15 146
+        }
+      }
+      if %Evasion && #hits > 30 && #mana > 24
+      {
+        cmpPix 3 f
+        {
+          gosub tWaitForAction Evasion 1 0 7 6 1
+          if #result
+            event macro 15 147
+        }
+      }
+      if %Ability && #mana > 31
+      {
+        cmpPix 1 f
+          event macro 35 0
+      }
+      if %Discordance
+      {
+        event macro 26 0
+        if #ltargetid <> #enemyid && #ltargetid <> #charid && #ltargetid <> *tCS_Mount . #charid && #ltargetid <> !ltargetid
+        {
+          gosub tWaitForAction2 Discordance 11
+          if #result
+          {
+            finditem %musictools C_ , #backpackid
+            set #lobjectid #findid
+            event macro 17 0
+            event macro 13 15
+            target
+            event macro 22 0
+            set !ltargetid #ltargetid
+          }
+        }
+      }
+    }
+  }
+  namespace Pop
+return
+sub HealFriend
+  namespace Push
+  namespace Local HealFriend
+  set !lpc #lpc
+  set #lpc 1000
+  finditem %FriendID G
+  if #findkind <> -1 && #finddist < 3 && #targcurs = 0
+  {
+    if #findtype in %player
+    {
+      gosub tWaitForAction AutoHeal 3 %BandageTime 0 0 1
+      if #result
+      {
+        finditem ZLF C_ , #backpackid
+        set #lobjectid #findid
+        event macro 17 0
+        set !prevLtargetid #ltargetid
+        set #ltargetid %FriendID
+        set #ltargetkind 1
+        target
+        event macro 22 0
+        set #ltargetid !prevLtargetid
+      }
+    }
+    else
+    {
+      gosub tWaitForAction Veterinary 4 %Vtime 0 0 1
+      if #result
+      {
+        finditem ZLF C_ , #backpackid
+        set #lobjectid #findid
+        event macro 17 0
+        set !prevLtargetid #ltargetid
+        set #ltargetid %FriendID
+        set #ltargetkind 1
+        target
+        event macro 22 0
+        set #ltargetid !prevLtargetid
+      }
+    }
+  }
+  set #lpc !lpc
+  namespace Pop
+return
+sub CutBone
+  set %x #charposx - 423
+  set %y #charposy - 431
+  if %x * %x + %y * %y < 25000
+  {
+    finditem %knife C
+    if #findkind <> -1
+      set #lobjectid #findid
+    else
+      event ExMsg #charid 3 55 [No knife!]
+    finditem %_bone G_12
+    if #findkind <> -1
+    {
+      gosub tWaitForAction2 CutBone 10
+      if #result
+      {
+        set #ltargetid #findid
+        set #ltargetkind 1
+        event macro 17 0
+        target
+        event macro 22 0
+      }
+    }
+    else
+    {
+      finditem %bonetypes G_12
+      if #findkind <> -1
+      {
+        gosub tWaitForAction2 CutBone 10
+        if #result
+        {
+          set #ltargetid #findid
+          set %_bone #findid
+          set #ltargetkind 1
+          event macro 17 0
+          target
+          event macro 22 0
+        }
+      }
+    }
+  }
+return
+sub ShowMenu
+  set !lpc #lpc
+  set #lpc 1000
+  menu Clear
+  menu Window Title tEnado 戰鬥輔助
+  menu font size 8
+  menu Window Size 275 625
+  menu Shape Shape 3 95 269 1 3 7 1 gray 7 gray
+  menu Shape Shape 3 200 269 1 3 7 1 gray 7 gray
+  menu Shape Shape 3 245 269 1 3 7 1 gray 7 gray
+  menu Shape Shape 3 305 269 1 3 7 1 gray 7 gray
+  menu Shape Shape 3 340 269 1 3 7 1 gray 7 gray
+  menu Shape Shape 3 400 269 1 3 7 1 gray 7 gray
+  menu Shape Shape 3 430 269 1 3 7 1 gray 7 gray
+  menu Shape Shape 3 460 269 1 3 7 1 gray 7 gray
+  menu Shape Shape 3 3 269 619 3 6 1 gray 1 $dedddd
+  menu Check S1 10 15 70 15 #false 拾取功能
+  menu Check S2 102 15 70 15 #false 打開屍體
+  menu Check S3 194 15 70 15 #false 自動繃帶
+  menu Check S4 10 40 70 15 #false 自動榮譽
+  menu Check S5 102 40 70 15 #false 自動失調
+  menu Check S6 194 40 70 15 #false PK提醒
+  menu Check S7 10 65 70 15 #false 獸醫
+  menu Edit Mount 57 62 39 寵物ID
+  menu Check S8 102 65 110 15 #false 獸醫快捷鍵
+  menu Edit MountKey 185 61 15 P
+  menu Button setVeterinary 205 62 40 20 設定
+  menu Check I1 10 100 70 15 #false 金幣
+  menu Check I2 102 100 70 15 #false 繃帶
+  menu Check I3 194 100 70 15 #false 手鐲戒指
+  menu Check I4 10 120 70 15 #false 次神箱子
+  menu Check I5 102 120 70 15 #false 珠寶
+  menu Check I6 194 120 70 15 #false 騎寵石
+  menu Check I7 10 140 70 15 #false 火號角
+  menu Check I8 102 140 70 15 #false 羊毛
+  menu Check I9 194 140 70 15 #false 羽毛
+  menu Check I10 10 160 70 15 #false 皮革
+  menu Check I11 102 160 70 15 #false 骨
+  menu Check I12 194 160 70 15 #false 肉
+  menu Check I13 10 180 70 15 #false 空卷
+  menu Check I14 102 180 70 15 #false 藥水
+  menu Check I15 194 180 70 15 #false 箭
+  menu Check I16 10 205 70 15 #false 神器材料
+  menu Check I17 102 205 70 15 #false 魔法藥材
+  menu Check I18 194 205 70 15 #false 巫師藥材
+  menu Check I19 10 225 70 15 #false 光棱任務
+  menu Check I20 102 225 70 15 #false 帕王任務
+  menu Check I21 194 225 70 15 #false 恐角任務
+  menu Check I22 10 255 15 15 #false
+  menu Edit IC1 28 251 28 ---
+  menu Check I23 65 255 15 15 #false
+  menu Edit IC2 83 251 28 ---
+  menu Check I24 120 255 15 15 #false
+  menu Edit IC3 138 251 28 ---
+  menu Check I25 10 282 15 15 #false
+  menu Edit IC4 28 278 28 ---
+  menu Check I26 65 282 15 15 #false
+  menu Edit IC5 83 278 28 ---
+  menu Check I27 120 282 15 15 #false
+  menu Edit IC6 138 278 28 ---
+  menu Text xxx 188 255 自定義物品
+  menu Button getType 175 278 55 20 讀取類別
+  menu Edit Type 232 278 28 ---
+  menu Check Customize 10 315 70 15 #false 自定義集
+  menu Check AllItems 102 315 70 15 #false 所有物品
+  menu Check S9 194 315 70 15 #false 地上物品
+  menu Check S10 10 350 100 15 #false 關閉屍體/容器
+  menu Check S11 150 350 70 15 #false 切割屍體
+  menu Check S12 10 375 70 15 #false 隱藏屍體
+  menu Check S13 150 375 100 15 #false 忽略玩家屍體
+  menu Button Ability 10 405 80 20 自動首特攻
+  menu Button Confidence 97 405 80 20 自動自信
+  menu Button Evasion 185 405 80 20 自動閃躲
+  menu Text xxx 10 438 繃帶朋友
+  menu Combo Create Friends 65 435 91
+  menu Button addFriend 159 435 30 20 添加
+  menu Button delFriend 192 435 30 20 刪除
+  menu Button FriendStart 225 435 40 20 開啟
+  menu Button HideMenu 30 470 60 20 隱藏面板
+  menu Button setItemBag 105 470 60 20 設定包
+  menu Button lootContainer 180 470 60 20 搜索容器
+  menu Check S14 10 504 110 15 #false 顯示面板快捷鍵
+  menu Edit menuKey 115 500 15 L
+  menu Check S15 145 504 110 15 #false 搜索容器快捷鍵
+  menu Edit LCKey 250 500 15 M
+  menu Button AutoAttack 85 530 105 20 自動攻擊最近目標
+  menu Font Color $565656
+  menu Text xxx 89 560 Powered By tEnado
+  menu Text xxx 88 575 www.byewind.com
+  menu Font Color $3071f6
+  menu Text Tips 10 597
+  if *tCS_Mount . #charid <> N/A && *tCS_Mount . #charid <> %null
+    menu set Mount *tCS_Mount . #charid
+  if *tCS_MountKey . #charid <> N/A && *tCS_MountKey . #charid <> %null
+    menu set MountKey *tCS_MountKey . #charid
+  if *tCS_MenuKey . #charid <> N/A && *tCS_MenuKey . #charid <> %null
+    menu set menuKey *tCS_MenuKey . #charid
+  if *tCS_LCKey . #charid <> N/A && *tCS_LCKey . #charid <> %null
+    menu set LCKey *tCS_LCKey . #charid
+  for %i 1 6
+  {
+    if *tCS_IC . %i <> N/A && *tCS_IC . %i <> %null
+      menu set IC , %i *tCS_IC . %i
+  }
+  for %i 1 15
+  {
+    str Mid *tCS_S . #charid %i 1
+    if #strRes = 1
+      menu set S , %i #true
+  }
+  for %i 1 27
+  {
+    str Mid *tCS_I . #charid %i 1
+    if #strRes = 1
+      menu set I , %i #true
+  }
+  str Mid *tCS_S . #charid 16 1
+  if #strRes = 1
+    menu set Customize #true
+  str Mid *tCS_S . #charid 17 1
+  if #strRes = 1
+    menu set AllItems #true
+  if *tCS_fNUM <> N/A && *tCS_fNUM <> %null && *tCS_fNUM > 0
+  {
+    set %name *tCS_fNAME
+    for %i 1 *tCS_fNUM
+    {
+      str Left %name 13
+      menu Combo Add Friends #strRes
+      str Del %name 1 13
+      set %name #strRes
+    }
+    menu Combo Select Friends *tCS_fNO
+  }
+  menu Show
+  set #MenuButton
+  set #lpc !lpc
+return
+sub makeMenu
+  set !lpc #lpc
+  set #lpc 1000
+  set *tCS_S . #charid
+  set *tCS_I . #charid
+  set %LootList
+  for %i 1 15
+  {
+    menu get S , %i
+    if #menures
+      set *tCS_S . #charid *tCS_S . #charid , 1
+    else
+      set *tCS_S . #charid *tCS_S . #charid , 0
+  }
+  for %i 1 27
+  {
+    menu get I , %i
+    if #menures
+    {
+      set *tCS_I . #charid *tCS_I . #charid , 1
+      if %i < 22
+        set %LootList %LootList , % . I . %i
+    }
+    else
+    {
+      set *tCS_I . #charid *tCS_I . #charid , 0
+    }
+  }
+  for %i 1 6
+  {
+    menu get IC , %i
+    if #menures = %null
+      set *tCS_IC , %i
+    if #menures <> %null && #menures <> ---
+    {
+      set *tCS_IC , %i #menures
+      set %LootList %LootList , #menures , _
+    }
+  }
+  menu get Customize
+  if #menures
+  {
+    set *tCS_S . #charid *tCS_S . #charid , 1
+    set %LootList %LootList , %Customize
+  }
+  else
+  {
+    set *tCS_S . #charid *tCS_S . #charid , 0
+  }
+  menu get AllItems
+  if #menures
+  {
+    set *tCS_S . #charid *tCS_S . #charid , 1
+    set %LootList *
+  }
+  else
+  {
+    set *tCS_S . #charid *tCS_S . #charid , 0
+  }
+  menu get Mount
+  if #menures = %null
+    set *tCS_Mount . #charid
+  if #menures <> %null && #menures <> 寵物ID
+    set *tCS_Mount . #charid #menures
+  menu get MountKey
+    set *tCS_MountKey . #charid #menures
+  menu get menuKey
+    set *tCS_MenuKey . #charid #menures
+  menu get LCKey
+    set *tCS_LCKey . #charid #menures
+  gosub setSub S1 setLoot
+  gosub setSub S2 OpenCorpse
+  gosub setSub S3 AutoHeal
+  gosub setSub S4 Honor
+  gosub setSub S5 Discordance
+  gosub setSub S6 FindPK
+  gosub setSub S7 Veterinary
+  gosub setSub S8 MountKey
+  gosub setSub S9 GroundItems
+  gosub setSub S10 CloseCorpse
+  gosub setSub S11 CutCorpses
+  gosub setSub S12 HideCorpses
+  gosub setSub S13 IgnorePlayers
+  gosub setSub S14 menuKey
+  gosub setSub S15 LCKey
+  if #MenuButton = setVeterinary 2
+    menu set Tips
+    gosub setVeterinary
+  if #MenuButton = addFriend 2
+    menu set Tips
+    gosub addFriend
+  if #MenuButton = delFriend 2
+    menu set Tips
+    gosub delFriend
+  if #MenuButton = FriendStart 2
+    menu set Tips
+    gosub FriendStart
+  if #MenuButton = getType 2
+    menu set Tips
+    gosub getType
+  if #MenuButton = Ability 2
+    menu set Tips
+    gosub Ability
+  if #MenuButton = Confidence 2
+    menu set Tips
+    gosub Confidence
+  if #MenuButton = Evasion 2
+    menu set Tips
+    gosub Evasion
+  if #MenuButton = setItemBag 2
+    menu set Tips
+    gosub setItemBag
+  if #MenuButton = lootContainer 2
+    menu set Tips
+    gosub setContainer
+  if #MenuButton = AutoAttack 2
+    menu set Tips
+    gosub AutoAttack
+  if #MenuButton = HideMenu 3
+    menu hide
+    set %makeMenu #true
+    set #MenuButton
+  if #MenuButton = closed
+    halt
+  set #lpc !lpc
+return
+sub setSub
+  menu get %1
+  if #menures
+    set % . %2 #true
+  else
+    set % . %2 #false
+return
+sub AutoAttack
+  if ! %AutoAttack
+  {
+    menu set AutoAttack 關閉
+    menu set Tips -----------------自動攻擊最近目標開啟-----------------
+    set %AutoAttack #true
+  }
+  else
+  {
+    menu set AutoAttack 自動攻擊最近目標
+    set %AutoAttack #false
+  }
+  set #MenuButton
+return
+sub Evasion
+  if ! %Evasion
+  {
+    menu Button Cancel 185 405 80 20 取消設定
+    set %count 20
+    set %T #scnt
+    while #scnt - %T < 20
+    {
+      if #MenuButton = Cancel
+      {
+        menu set Tips
+        menu Delete Cancel
+        set #MenuButton
+        return
+      }
+      set %x #contposx + 35
+      set %y #contposy + 35
+      savepix %x %y 3
+      if #contname = spellicon_gump && #contsize = 48_44 && #pixcol = 4334005
+      {
+        menu set Tips -----------------------自動閃躲開啟-----------------------
+        menu set Evasion 關閉自動閃躲
+        set %Evasion #true
+        break
+      }
+      menu set Tips ------------雙擊閃躲圖標，使之變紅... %count ------------
+      set %count %count - 1
+      wait 20
+    }
+    if %count < 1 || #scnt - %T >= 20
+      menu set Tips -----------------超時，自動閃躲未啟動-----------------
+  }
+  else
+  {
+    menu set Evasion 自動閃躲
+    set %Evasion #false
+  }
+  menu Delete Cancel
+  set #MenuButton
+return
+sub Confidence
+  if ! %Confidence
+  {
+    menu Button Cancel 97 405 80 20 取消設定
+    set %count 20
+    set %T #scnt
+    while #scnt - %T < 20
+    {
+      if #MenuButton = Cancel
+      {
+        menu set Tips
+        menu Delete Cancel
+        set #MenuButton
+        return
+      }
+      set %x #contposx + 35
+      set %y #contposy + 35
+      savepix %x %y 2
+      if #contname = spellicon_gump && #contsize = 48_44 && #pixcol = 4860366
+      {
+        menu set Tips -----------------------自動自信開啟-----------------------
+        menu set Confidence 關閉自動自信
+        set %Confidence #true
+        break
+      }
+      menu set Tips ------------雙擊自信圖標，使之變紅... %count ------------
+      set %count %count - 1
+      wait 20
+    }
+    if %count < 1 || #scnt - %T >= 20
+      menu set Tips -----------------超時，自動自信未啟動-----------------
+  }
+  else
+  {
+    menu set Confidence 自動自信
+    set %Confidence #false
+  }
+  menu Delete Cancel
+  set #MenuButton
+return
+sub Ability
+  if ! %Ability
+  {
+    menu Button Cancel 10 405 80 20 取消設定
+    set %count 20
+    set %T #scnt
+    while #scnt - %T < 20
+    {
+      if #MenuButton = Cancel
+      {
+        menu set Tips
+        menu Delete Cancel
+        set #MenuButton
+        return
+      }
+      set %x #contposx + 35
+      set %y #contposy + 35
+      savepix %x %y 1
+      if #contname = abilityicon_gump && #contsize = 48_44 && #pixcol = 4860358
+      {
+        menu set Tips ----------------------自動首特攻開啟---------------------
+        menu set Ability 關閉自動特攻
+        set %Ability #true
+        break
+      }
+      menu set Tips ------------雙擊特攻圖標，使之變紅... %count ------------
+      set %count %count - 1
+      wait 20
+    }
+    if %count < 1 || #scnt - %T >= 20
+      menu set Tips ----------------超時，自動首特攻未啟動---------------
+  }
+  else
+  {
+    menu set Ability 自動首特攻
+    set %Ability #false
+  }
+  menu Delete Cancel
+  set #MenuButton
+return
+sub getType
+  gosub s7GetTarget
+  finditem #result
+  if #findkind <> -1
+  {
+    event ExMsg #findid 3 55 [me]
+    menu set Type #findtype
+  }
+  set #MenuButton
+return
+sub FriendStart
+  if ! %HealFriend
+  {
+    menu get Friends
+    if #menures <> 0
+    {
+      menu set FriendStart 關閉
+      set *tCS_fNO #menures
+      set %count 13 * #menures - 12
+      str Mid *tCS_fID %count 13
+      set %strRes #strRes
+      str Pos %strRes #spc
+      set %count 14 - #strRes
+      str Del %strRes #strRes %count
+      menu set Tips -----------------------繃帶朋友開啟-----------------------
+      set %FriendID #strRes
+      set %HealFriend #true
+    }
+  }
+  else
+  {
+    menu set FriendStart 開啟
+    set %HealFriend #false
+  }
+  set #MenuButton
+return
+sub addFriend
+  menu set Tips --------------------請選擇玩家或寵物--------------------
+  gosub s7GetTarget
+  menu set Tips
+  set %ID #result
+  event property %ID
+  gosub getName
+  if %ID in *tCS_fID
+  {
+    menu set Tips ------------ %name 已存在於下拉列表中------------
+    set #MenuButton
+    return
+  }
+  if *tCS_fID = N/A || *tCS_fID = %null
+    set *tCS_fID
+  if *tCS_fNAME = N/A || *tCS_fNAME = %null
+    set *tCS_fNAME
+  str Len %ID
+  if #strRes < 13
+  {
+    set %count 13 - #strRes
+    for %i 1 %count
+      set %ID %ID , #spc
+  }
+  set *tCS_fID *tCS_fID , %ID
+  str Len %name
+  if #strRes < 13
+  {
+    set %count 13 - #strRes
+    for %i 1 %count
+      set %name %name , #spc
+  }
+  if #strRes > 13
+  {
+    str Left %name 13
+    set %name #strRes
+  }
+  set *tCS_fNAME *tCS_fNAME , %name
+  menu Combo Add Friends %name
+  str Len *tCS_fID
+  set *tCS_fNUM #strRes / 13
+  menu Combo Select Friends *tCS_fNUM
+  event ExMsg %ID 3 55 [New Friend]
+  set #MenuButton
+return
+sub delFriend
+  menu get Friends
+  set %count 13 * #menures - 12
+  str Del *tCS_fNAME %count 13
+  set *tCS_fNAME #strRes
+  str Del *tCS_fID %count 13
+  set *tCS_fID #strRes
+  if *tCS_fNUM > 0
+    set *tCS_fNUM *tCS_fNUM - 1
+  menu Font Color black
+  menu Delete Friends
+  menu Combo Create Friends 65 435 91
+  if *tCS_fNUM <> N/A && *tCS_fNUM <> %null && *tCS_fNUM > 0
+  {
+    set %name *tCS_fNAME
+    for %i 1 *tCS_fNUM
+    {
+      str Left %name 13
+      menu Combo Add Friends #strRes
+      str Del %name 1 13
+      set %name #strRes
+    }
+    menu Combo Select Friends #menures
+  }
+  set #MenuButton
+return
+sub getName
+  set %name #property
+  if lord in %name || lady in %name 2
+    str del %name 1 5
+    set %name #strRes
+  if [ in %name 4
+    str pos %name [
+    set %strRes #strRes - 2
+    str left %name %strRes
+    set %name #strRes
+  if ( in %name 4
+    str pos %name (
+    set %strRes #strRes - 2
+    str left %name %strRes
+    set %name #strRes
+  if $ in %name 4
+    str pos %name $
+    set %strRes #strRes - 2
+    str left %name %strRes
+    set %name #strRes
+return
+sub setItemBag
+  gosub s7GetTarget
+  set *tCS_ItemBag . #charid #result
+  event ExMsg *tCS_ItemBag . #charid 3 55 [New storage bag]
+  set #MenuButton
+return
+sub setContainer
+  gosub s7GetTarget
+  set %lootContainerID #result
+  event ExMsg %lootContainerID 3 55 [Loot this container]
+  set %lootContainer #true
+  set #MenuButton
+return
+sub setVeterinary
+  menu Button VeterinaryOK 205 62 40 20 確定
+  set %count 20
+  set %T #scnt
+  while #scnt - %T < 20
+  {
+    if #MenuButton = VeterinaryOK
+    {
+      if #contname = status_gump && #conttype in %mountkind
+      {
+        if #contid = *tCS_Mount . #charid
+        {
+          set %x #contposx + 135
+          set %y #contposy + 42
+          savepix %x %y 4
+          menu set Tips --------------------------設定成功--------------------------
+          set %setVeterinary #true
+          break
+        }
+        else
+        {
+          menu set Tips ---寵物ID與操作的寵物不符，請重新設定寵物ID--
+          set %setVeterinary #false
+          break
+        }
+      }
+      else
+      {
+        menu set Tips --設定失敗，拖出血條後請勿點擊UO內其它元素-
+        set %setVeterinary #false
+        break
+      }
+    }
+    menu set Tips 手動拖出寵物血條確認寵物滿血後點<確定>... %count
+    set %count %count - 1
+    wait 20
+  }
+  if %count < 1 || #scnt - %T >= 20 2
+    menu set Tips ---------------------超時，設定失敗---------------------
+    set %setVeterinary #false
+  menu Delete VeterinaryOK
+  set #MenuButton
+return
+;* @name s7GetTarget
+;* @author snicker7
+sub s7GetTarget
+  set #ltargetid
+	set #targcurs 1
+	_waitfortargcurs:
+	if #targcurs = 1 2
+		wait 1
+		goto _waitfortargcurs
+return #ltargetid
+;* @name tWaitForAction
+;* @author tEnado
+sub tWaitForAction
+  namespace Push
+  namespace Local tWaitForAction
+  set !lpc #lpc
+  set #lpc 1000
+  if %_tWFA
+  {
+    for !i 1 10
+    {
+     set ! . !i !tWFA_ . !i
+    }
+    set % . _Last . !c ! . _tWFA_Last . !c
+    set %_tWFA #false
+  }
+  for !i 1 10
+    {
+     set !tWFA_ . !i ! . !i
+    }
+  set ! . _tWFA_Last . !c % . _Last . !c
+  if #scnt2 - % . _Last . %1 > %3
+     {
+      set !b 0
+      if !6 = 0
+         set !b !7
+      if ( %2 = 4 && !9 = 3 ) || ( %2 = 3 && !9 = 4 )
+         set !b !10
+      _tWaitForAction:
+        if ( !3 + !b > #scnt2 ) || ( %2 = 1 && ( !3 + !7 > #scnt2 || !4 + !1 > #scnt2 ) ) || ( %2 = 2 && ( !3 + !8 > #scnt2 || !5 + !2 > #scnt2 ) )
+        {
+           if %6 = 1 2
+             wait 1
+             goto _tWaitForAction
+           set #lpc !lpc
+           namespace Pop
+           return #false
+        }
+      set !3 #scnt2
+      if %2 = 1 2
+       set !4 #scnt2
+       set !1 %4
+      if %2 = 2 2
+       set !5 #scnt2
+       set !2 %5
+      set % . _Last . %1 #scnt2
+      set !c %1
+      set !6 %2
+      set !7 %4
+      set !8 %5
+      if %2 = 3 || %2 = 4 2
+         set !9 %2
+         set !10 %3
+      set #lpc !lpc
+      namespace Pop
+      return #true
+      }
+  set #lpc !lpc
+  namespace Pop
+return #false
+;* @name tWaitForAction3
+;* @author tEnado
+sub tWaitForAction3
+  _tWaitForAction3:
+    if % . _Last . %1 + %2 > #scnt2 2
+       wait 1
+       goto _tWaitForAction3
+  set % . _Last . %1 #scnt2
+return
+;* @name tWaitForAction2
+;* @author tEnado
+sub tWaitForAction2
+  if #scnt2 - % . _Last . %1 > %2 2
+    set % . _Last . %1 #scnt2
+    return #true
+return #false

@@ -1,0 +1,86 @@
+;=================================================================
+; [WOW 公會]
+; [EUO 腳本]自動打怪檢屍體割皮
+;
+; [腳本說明]
+; 需注意要執行前要先設定好你要打的怪"物件編號"
+; 如要查詢物品或怪的物件編號，請接洽”老家”
+
+; [使用方法]
+; 執行本腳本會自動追擊30格內所設定的怪物
+; [注意事項]
+; 身上要有新手祝福剪刀(不是商店買的剪刀)，不然會無法剪皮
+; 身上要放一支"武士刀"(商店牌就可)，割皮用
+; 注意因為euo補血繃帶效率沒ra好，所以請用ｒａ繃自己
+;=================================================================
+set %m_id WD_ZC  ;m_id怪物物件
+set %m_mo YZF_UZF_JZF_DUF_TZF_POF_WZF_IUF ;m_mo所檢物品物件
+{
+	finditem %m_id G_30       ;找怪追擊
+	if #finddist > 0
+	move #findx #findy 0 1s
+	set #ltargetid #findid
+	event macro 27 0
+	until #ENEMYID = N/A
+}
+
+{
+	finditem YFM G_2       ;自動找屍體
+	wait 10
+	if #finddist > 2
+	event pathfind #findx #findy #findz
+}
+
+until #finddist <= 2 || #findid = X          
+wait 5
+IF #FINDKIND = 1
+  {
+   SET %I #FINDID                ;將尋找到的目標ID設定為變數I
+   FOR %CN 1 1
+    {
+     MSG 尋找屍體.....$
+     WAIT 10
+     FINDITEM NMH C , #BACKPACKID        ;使用武器(NMH)武士刀割屍體
+     SET #LOBJECTID #FINDID
+     SET #LTARGETID %I
+     EVENT MACRO 17 0
+     TARGET
+     EVENT MACRO 22 0
+     wait 20
+     set #LOBJECTID %I        ;設定尋找的物件為剛剛的工作物ID
+     set %targetcrop %I        ;設定尋找的物件為目標物
+     event macro 17 0                ;重複上一次動作(打開屍體)
+     wait 15
+CC:
+     finditem %m_mo c_ , %targetcrop ;尋找屍體中物品
+     WAIT 20
+       IF #FINDKIND = 0
+       {
+         Exevent Drag #findid #findstack ;拿起尋找到的物件全部
+         wait 5
+         Exevent Dropc #backpackid      ;放進自己的包包中
+         wait 5
+         GOTO CC
+       }
+    ignoreitem %targetcrop
+    ignoreitem reset 30
+     }
+finditem JAG      ;祝福剪刀剪皮
+if #FINDKIND = 0
+{
+set %scro #FINDID
+doband:
+finditem DEG
+if #FINDKIND = 0
+{
+set #LOBJECTID %scro
+set #LTARGETID #FINDID
+event macro 17 0
+target
+event macro 22 0
+wait 20
+goto doband
+}
+}
+  }
+
